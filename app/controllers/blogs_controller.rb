@@ -46,8 +46,7 @@ class BlogsController < ApplicationController
   private
 
   def set_blog
-    @blog = Blog.find(params[:id])
-    raise ActiveRecord::RecordNotFound if %w[edit update destroy].include?(action_name) && @blog.user != current_user
+    @blog = current_user.blogs.find(params[:id])
   end
 
   def blog_params
