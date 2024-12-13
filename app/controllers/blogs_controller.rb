@@ -3,13 +3,15 @@
 class BlogsController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
-  before_action :set_blog, only: %i[show edit update destroy]
+  before_action :set_blog, only: %i[edit update destroy]
 
   def index
     @blogs = Blog.search(params[:term]).published.default_order
   end
 
-  def show; end
+  def show
+    @blog = Blog.published.or(Blog.where(user: current_user)).find(params[:id])
+  end
 
   def new
     @blog = Blog.new
@@ -46,7 +48,6 @@ class BlogsController < ApplicationController
   def set_blog
     @blog = Blog.find(params[:id])
     raise ActiveRecord::RecordNotFound if %w[edit update destroy].include?(action_name) && @blog.user != current_user
-    raise ActiveRecord::RecordNotFound if @blog.secret? && @blog.user != current_user
   end
 
   def blog_params
